@@ -5,7 +5,8 @@
             [hiccup.middleware :refer [wrap-base-url]]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [request-analyzer.routes.home :refer [home-routes]]))
+            [request-analyzer.routes.home :refer [home-routes]]
+            [noir-mid))
 
 (defn init []
   (println "request-analyzer is starting"))

@@ -28,4 +28,4 @@
 
 (defroutes home-routes
   (GET "/" [] (home))
-  (POST "/" {params :params} (handle-upload params) (read-contents (get params :tempfile))))
+  (POST "/" {params :params} (handle-upload params) (read-contents (get-in params [:file :tempfile]))))
