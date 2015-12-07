@@ -6,6 +6,8 @@
             [clojure.java.io :as io]
             [clojure-csv.core :as csv]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Templating ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn home [& [file]]
   (layout/common [:h1 "Welcome Kepler Komet!"]
                  [:h2 "Please upload a file"]
@@ -16,16 +18,26 @@
                           [:br]
                           (submit-button "Upload File"))))
 
-(defn read-contents [file] 
-  (with-open [in-file (io/reader file)]
-    (println
-     (csv/parse-csv in-file))))
-  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CSV Handler ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn csv? [content-type]
+  (= content-type "text/csv"))
+
+(defn columns>1? [contents]
+  (some #(> (count %) 1) contents))
+
+(defn read-contents [file]
+    (csv/parse-csv (slurp file)))
 
 (defn handle-upload [params]
-  (println params)
-  (home "success"))
+  (if (csv? (get-in params [:file :content-type]))
+    (if (columns>1? (read-contents (get-in params [:file :tempfile])))
+      (home "You have uploaded a file with multiple columns")
+      (home "Success"))
+    (home "Your file is not a csv")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Routes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defroutes home-routes
   (GET "/" [] (home))
-  (POST "/" {params :params} (handle-upload params) (read-contents (get-in params [:file :tempfile]))))
+  (POST "/" {params :params} (handle-upload params)))
