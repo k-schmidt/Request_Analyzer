@@ -10,6 +10,7 @@ I would like to:
 
 Problems:
 I am currently trying to iterate through the first column of a csv and submit requests to URIs to see if they are valid.
+    * I will probably use the [clj-http](https://github.com/mmcgrana/clj-http) library. It seems to support what I need.
 
 ## Prerequisites
 
