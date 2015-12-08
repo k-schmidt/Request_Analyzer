@@ -9,7 +9,8 @@ I would like to:
 3. Write the responses from submitting each URI as a request to a separate column of either the original uploaded file or a new file in order to ensure that the URIs are valid.
 
 Problems:
-I am currently having difficulty reading the uploaded file.
+I am currently trying to iterate through the first column of a csv and submit requests to URIs to see if they are valid.
+* I will probably use the [clj-http](https://github.com/mmcgrana/clj-http) library. It seems to support what I need.
 
 ## Prerequisites
 
