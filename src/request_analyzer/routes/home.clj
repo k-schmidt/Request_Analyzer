@@ -4,7 +4,9 @@
             [hiccup.form :refer :all]
             [ring.middleware.multipart-params :as mp]
             [clojure.java.io :as io]
-            [clojure-csv.core :as csv]))
+            [clojure-csv.core :as csv]
+            [clj-http.client :as client]
+            [clojure.data.csv :as writer]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Templating ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -29,12 +31,29 @@
 (defn read-contents [file]
     (csv/parse-csv (slurp file)))
 
+(defn fetch-status-request [urls]
+  (mapv #(:status (client/get (first %))) urls))
+
+(defn conj-response [urls statuses]
+  (mapv conj urls statuses))
+
+(defn csv-write [upload-file download-file]
+  (with-open [out-file (io/writer download-file)]
+    (writer/write-csv out-file
+                      (conj-response
+                       (read-contents upload-file)
+                       (fetch-status-request
+                        (read-contents upload-file))))))
+
 (defn handle-upload [params]
+  (let [file (get-in params [:file :tempfile])]
   (if (csv? (get-in params [:file :content-type]))
-    (if (columns>1? (read-contents (get-in params [:file :tempfile])))
+    (if (columns>1? (read-contents file))
       (home "You have uploaded a file with multiple columns")
-      (home "Success"))
-    (home "Your file is not a csv")))
+      (do
+        (csv-write file "analyzed.csv")
+        (home "Success")))
+    (home "Your file is not a csv"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Routes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
